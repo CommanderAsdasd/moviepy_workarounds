@@ -12,13 +12,7 @@ from random import choice
 import numpy as np
 import time
 from moviepy.editor import *
-# from moviepy.video.fx.all import *
 
-# from __future__ import print_function
-
-# def make_frame(t):
-# 	'''returns an imge of the frame at t'''
-# 	return frameFortimeT # Numpy array
 
 write_data = time.strftime("%I%M%S")
 
@@ -30,7 +24,9 @@ def wand_opener(img):
         print('height =', img.height) 
         size = img.size
         coef_x = choice((2,3,4,5))
+        # coef_x = 2
         coef_y = choice((2,3,4,5))
+        # coef_y = 2
         if choice((0, 1)) == 0:
            ch = ('div', 'mul')
            x_size = size[0]//coef_x
@@ -50,7 +46,6 @@ def wand_opener(img):
         # print(img.size)
     return blob
 
-# Надо заставить его сожрать изображение из 
 
 def show_me_type(imarray):
     blob = io.BytesIO()
@@ -66,18 +61,19 @@ def show_me_type(imarray):
     img = Image.open(blob2)
     # img = Image.frombuffer('RGB', (150,100), blob2.open(), "raw")
     # print(img)
-    img.save("D:\\Videos\\moviepy\\outimages\\img{}_PIL.jpeg".format(write_data))
+    # img.save("D:\\Videos\\moviepy\\outimages\\img{}_PIL.jpeg".format(write_data))
     imarray = np.fromstring(img.tobytes(), dtype=np.uint8)
+    print(imarray)
     imarray = imarray.reshape((img.size[1], img.size[0], 3))
     return imarray
 
 # animation = MpEditor.VideoClip(make_frame, duration=3)
 
 def main():
-    x = MpEditor.VideoFileClip("D:\\Videos\\5Upak.mp4")
+    x = MpEditor.VideoFileClip("D:\\Videos\\ecoding\\Caseu.mp4+_vegas-enc.mp4")
+    x = x.subclip(0.05, x.duration)
     x = x.fl_image(show_me_type)
-    # x = x.resize( (1920, 1080) )
-    x = x.subclip(1, 10)
+    x = x.resize( (1920, 1080) )
     # x = concatenate_videoclips(x, method='compose')
     x.write_videofile("D:\\Videos\\moviepy\\outimages\\CAS_COOL{}.mp4".format(write_data),  fps=60)
 
