@@ -6,15 +6,69 @@ import wand.image as WndImage
 import StringIO
 import png
 import scipy.misc
-from PIL import Image
+import PIL.Image as PILImage
 import io
 from random import choice
 import numpy as np
 import time
 from moviepy.editor import *
-
+import argparse
+import tkFileDialog
+from Tkinter import *
 
 write_data = time.strftime("%I%M%S")
+
+def gui():
+    """make the GUI version of this command that is run if no options are
+    provided on the command line"""
+
+    def button_go_callback():
+
+        input_file = entry.get()
+        main(input_file)
+
+
+    def button_browse_callback():
+        """ What to do when the Browse button is pressed """
+        filename = tkFileDialog.askopenfilename()
+        entry.delete(0, END)
+        entry.insert(0, filename)
+
+    root = Tk()
+    frame = Frame(root)
+    frame.pack()
+
+    statusText = StringVar(root)
+    statusText.set("Press Browse button or enter Movie filename, "
+                   "then press the Go button")
+
+    label = Label(root, text="Video file: ")
+    label.pack()
+    entry = Entry(root, width=50)
+    entry.pack()
+    separator = Frame(root, height=2, bd=1, relief=SUNKEN)
+    separator.pack(fill=X, padx=5, pady=5)
+
+    button_go = Button(root,
+                       text="Go",
+                       command=button_go_callback)
+    button_browse = Button(root,
+                           text="Browse",
+                           command=button_browse_callback)
+    button_exit = Button(root,
+                         text="Exit",
+                         command=sys.exit)
+    button_go.pack()
+    button_browse.pack()
+    button_exit.pack()
+
+    separator = Frame(root, height=2, bd=1, relief=SUNKEN)
+    separator.pack(fill=X, padx=5, pady=5)
+
+    message = Label(root, textvariable=statusText)
+    message.pack()
+
+    mainloop()
 
 def wand_opener(img):
     blob = io.BytesIO()
@@ -49,7 +103,7 @@ def wand_opener(img):
 
 def show_me_type(imarray):
     blob = io.BytesIO()
-    inpImage = Image.fromarray(imarray, 'RGB')
+    inpImage = PILImage.fromarray(imarray, 'RGB')
     print(inpImage.size)
     inpImage.save(blob, format='JPEG')
 # png.from_array(img)
@@ -58,7 +112,7 @@ def show_me_type(imarray):
     blob2 = wand_opener(blob.getvalue())
     # print(blob, blob2)
     blob2.seek(0)
-    img = Image.open(blob2)
+    img = PILImage.open(blob2)
     # img = Image.frombuffer('RGB', (150,100), blob2.open(), "raw")
     # print(img)
     # img.save("D:\\Videos\\moviepy\\outimages\\img{}_PIL.jpeg".format(write_data))
@@ -69,13 +123,12 @@ def show_me_type(imarray):
 
 # animation = MpEditor.VideoClip(make_frame, duration=3)
 
-def main():
-    x = MpEditor.VideoFileClip("D:\\Videos\\ecoding\\Caseu.mp4+_vegas-enc.mp4")
+def main(videoClip):
+    x = MpEditor.VideoFileClip(videoClip)
     x = x.subclip(0.05, x.duration)
     x = x.fl_image(show_me_type)
     x = x.resize( (1920, 1080) )
-    # x = concatenate_videoclips(x, method='compose')
     x.write_videofile("D:\\Videos\\moviepy\\outimages\\CAS_COOL{}.mp4".format(write_data),  fps=60)
 
 if __name__ == "__main__":
-    main()
+    gui()
