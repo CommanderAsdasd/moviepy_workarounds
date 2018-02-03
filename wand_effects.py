@@ -11,6 +11,8 @@ import io
 from random import choice
 import numpy as np
 import time
+from moviepy.editor import *
+# from moviepy.video.fx.all import *
 
 # from __future__ import print_function
 
@@ -18,9 +20,12 @@ import time
 # 	'''returns an imge of the frame at t'''
 # 	return frameFortimeT # Numpy array
 
+write_data = time.strftime("%I%M%S")
+
 def wand_opener(img):
     blob = io.BytesIO()
     with WndImage.Image(blob=img) as img:
+        img.format = 'jpeg'
         print('width =', img.width)
         print('height =', img.height) 
         size = img.size
@@ -35,8 +40,14 @@ def wand_opener(img):
             x_size = size[0]//coef_x
             y_size = size[1]//coef_x
         img.liquid_rescale(x_size, y_size)
+        # img.save(filename="D:\\Videos\\moviepy\\outimages\\img{}.jpeg".format(write_data))
         img.sample(size[0], size[1])
-        img.save(file=blob)
+        # img.save(filename="D:\\Videos\\moviepy\\outimages\\img{}.jpeg".format(write_data))
+        print(size[0], size[1])
+        img_bin = img.make_blob('jpeg')
+        blob = io.BytesIO(b'{}'.format(img_bin))
+        # img.save(blob=blob)
+        # print(img.size)
     return blob
 
 # Надо заставить его сожрать изображение из 
@@ -44,15 +55,18 @@ def wand_opener(img):
 def show_me_type(imarray):
     blob = io.BytesIO()
     inpImage = Image.fromarray(imarray, 'RGB')
-    print(inpImage)
+    print(inpImage.size)
     inpImage.save(blob, format='JPEG')
 # png.from_array(img)
     print(blob)
 # print("LOL", bytemage)
     blob2 = wand_opener(blob.getvalue())
-    img = Image.frombuffer('RGB', (inpImage.size[0],10), blob2.getvalue())
-    # print(blob2)
-    
+    # print(blob, blob2)
+    blob2.seek(0)
+    img = Image.open(blob2)
+    # img = Image.frombuffer('RGB', (150,100), blob2.open(), "raw")
+    # print(img)
+    img.save("D:\\Videos\\moviepy\\outimages\\img{}_PIL.jpeg".format(write_data))
     imarray = np.fromstring(img.tobytes(), dtype=np.uint8)
     imarray = imarray.reshape((img.size[1], img.size[0], 3))
     return imarray
@@ -60,12 +74,12 @@ def show_me_type(imarray):
 # animation = MpEditor.VideoClip(make_frame, duration=3)
 
 def main():
-    write_data = time.strftime("%I%M%S")
-    x = MpEditor.VideoFileClip("D:\\Videos\\Bandicam\\bandicam 2018-01-21 21-30-59-894.mp4")
+    x = MpEditor.VideoFileClip("D:\\Videos\\5Upak.mp4")
     x = x.fl_image(show_me_type)
-    x = x.resize( (1920, 1080) )
-    x = x.subclip(1, 1.05)
-    x.write_videofile("D:\\Videos\\CASme.mp4",  fps=60)
+    # x = x.resize( (1920, 1080) )
+    x = x.subclip(1, 10)
+    # x = concatenate_videoclips(x, method='compose')
+    x.write_videofile("D:\\Videos\\moviepy\\outimages\\CAS_COOL{}.mp4".format(write_data),  fps=60)
 
 if __name__ == "__main__":
     main()
